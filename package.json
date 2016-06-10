@@ -1,0 +1,22 @@
+{
+  "name": "fourinarow-web",
+  "version": "1.0.0",
+  "description": "Four In A Row web app for pitting humans against bots",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/naderchehab/fourinarow-web"
+  },
+  "author": "Nader Chehab",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "errorhandler": "^1.4.3",
+    "express": "^4.13.4",
+    "method-override": "^2.3.6"
+  }
+}
