@@ -37,15 +37,22 @@ let settings = {
     field_rows: '6'
 };
 
+let board = new Board(settings);
+let bot = new Bot({numTrainingGames: 100});
+bot.load("trainedBot.json");
+
 app.get("/", function (req, res) {
   res.sendFile(path.join(publicDir, "/index.html"));
 });
 
 app.get("/train", function (req, res) {
-
-    let board = new Board(settings);
-    let bot = new Bot({numTrainingGames: 100});
-    bot.train(board, () => res.send('Done'));
+    bot.train(board, () => res.json({status: 'Done'}));
 });
+
+app.get("/getmove", function (req, res) {
+    let move = bot.getMove(board);
+    res.json({move: move});
+});
+
 console.log("fourinarow-web server %s listening at http://%s:%s", publicDir, hostname, port);
 app.listen(port, hostname);
