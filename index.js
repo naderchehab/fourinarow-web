@@ -33,25 +33,32 @@ let settings = {
     player_names: 'player1,player2',
     your_bot: 'player1',
     your_botid: '1',
-    field_columns: '7',
-    field_rows: '6'
+    field_columns: '3',
+    field_rows: '3'
 };
 
-let board = new Board(settings);
-let bot = new Bot({numTrainingGames: 100});
+let board = new Board(settings, 2);
+let bot = new Bot({numTrainingGames: 100000});
 bot.load("trainedBot.json");
+
 
 app.get("/", function (req, res) {
   res.sendFile(path.join(publicDir, "/index.html"));
 });
 
 app.get("/train", function (req, res) {
-    bot.train(board, () => res.json({status: 'Done'}));
+    bot.train(board, () => {
+        bot.save("trainedBot.json", () => {
+            res.json({status: 'Done'});
+        });
+    });
 });
 
 app.get("/getmove", function (req, res) {
-    let move = bot.getMove(board);
-    res.json({move: move});
+    board.placeDisc(parseInt(req.query.playerMove, 10));
+    board.nextPlayer();
+    let botMove = bot.getMove(board);
+    res.json({botMove: botMove});
 });
 
 console.log("fourinarow-web server %s listening at http://%s:%s", publicDir, hostname, port);

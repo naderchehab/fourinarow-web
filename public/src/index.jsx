@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Board from './components/board';
 
 const App = () => {
-    return <Board rows={5} columns={7}/>
+    return <Board rows={3} columns={3}/>
 }
 
 ReactDOM.render(
