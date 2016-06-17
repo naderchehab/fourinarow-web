@@ -17,14 +17,14 @@ app.use(methodOverride());
 app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({
-  extended: true
+    extended: true
 }));
 
 app.use(express.static(publicDir));
 
 app.use(errorHandler({
-  dumpExceptions: true,
-  showStack: true
+    dumpExceptions: true,
+    showStack: true
 }));
 
 let settings = {
@@ -33,32 +33,44 @@ let settings = {
     player_names: 'player1,player2',
     your_bot: 'player1',
     your_botid: '1',
-    field_columns: '3',
-    field_rows: '3'
+    field_columns: '4', // 7
+    field_rows: '4' // 6
 };
 
-let board = new Board(settings, 2);
-let bot = new Bot({numTrainingGames: 100000});
-bot.load("trainedBot.json");
-
-
-app.get("/", function (req, res) {
-  res.sendFile(path.join(publicDir, "/index.html"));
+let board = new Board(settings, 3);
+let bot = new Bot({
+    numTrainingGames: 100000
 });
 
-app.get("/train", function (req, res) {
+//bot.load("trainedBot.json");
+
+
+app.get("/", function(req, res) {
+    res.sendFile(path.join(publicDir, "/index.html"));
+});
+
+app.get("/train", function(req, res) {
     bot.train(board, () => {
         bot.save("trainedBot.json", () => {
-            res.json({status: 'Done'});
+            res.json({
+                status: 'Done'
+            });
         });
     });
 });
 
-app.get("/getmove", function (req, res) {
-    board.placeDisc(parseInt(req.query.playerMove, 10));
+app.get("/getmove", function(req, res) {
+    let column = parseInt(req.query.playerMove, 10);
+    board.placeDisc(column);
     board.nextPlayer();
     let botMove = bot.getMove(board);
-    res.json({botMove: botMove});
+    board.placeDisc(botMove);
+    board.nextPlayer();
+    board.print();
+    res.json({
+        botMove: botMove || "undefined",
+        yourBotId: board.yourBotId
+    });
 });
 
 console.log("fourinarow-web server %s listening at http://%s:%s", publicDir, hostname, port);
