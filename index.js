@@ -33,8 +33,8 @@ let settings = {
     player_names: 'player1,player2',
     your_bot: 'player1',
     your_botid: '1',
-    field_columns: '4', // 7
-    field_rows: '4' // 6
+    field_columns: '3', // 7
+    field_rows: '3' // 6
 };
 
 let board = new Board(settings, 3);
@@ -42,7 +42,7 @@ let bot = new Bot({
     numTrainingGames: 100000
 });
 
-//bot.load("trainedBot.json");
+bot.load("trainedBot.json");
 
 
 app.get("/", function(req, res) {
@@ -59,17 +59,43 @@ app.get("/train", function(req, res) {
     });
 });
 
-app.get("/getmove", function(req, res) {
+app.get("/play", function(req, res) {
+
+    if (board.checkWin()) {
+        return res.status(400).json({result: 'Game has already ended'});
+    }
+
+    let winnerId = 0;
+    let botMove = undefined;
     let column = parseInt(req.query.playerMove, 10);
-    board.placeDisc(column);
-    board.nextPlayer();
-    let botMove = bot.getMove(board);
-    board.placeDisc(botMove);
-    board.nextPlayer();
+    let isValidMove = board.placeDisc(column);
+
+    if (!isValidMove) {
+        return res.status(400).json({result: 'Invalid move'});
+    }
+
+    if (board.checkWin()) {
+        winnerId = board.yourBotId;
+    }
+    else {
+        board.nextPlayer();
+        botMove = bot.getMove(board);
+        board.placeDisc(botMove);
+
+        if (board.checkWin()) {
+            winnerId = board.yourBotId;
+        }
+        else {
+            board.nextPlayer();
+        }
+    }
+
     board.print();
+
     res.json({
-        botMove: botMove || "undefined",
-        yourBotId: board.yourBotId
+        botMove: botMove,
+        result: 'OK',
+        winner: winnerId
     });
 });
 
